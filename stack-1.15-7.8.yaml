@@ -3,6 +3,8 @@ flags:
     base4point8: false
   aeson:
     old-locale: true
+  pandoc:
+    old-locale: true
 extra-package-dbs: []
 packages:
 - '.'
