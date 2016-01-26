@@ -66,11 +66,6 @@ main = hspec $ do
     -- describe "References.Blocks.divBlocks"
 
     describe "References.Blocks.replaceBlocks" $ do
-#if MIN_VERSION_pandoc(1,16,0)
-      it "Labels images" $
-        testAll (figure "test.jpg" [] "Test figure" "figure")
-        (figure "test.jpg" [] "Figure 1: Test figure" "figure",
-          imgRefs =: M.fromList $ refRec' "fig:figure" 1 "Test figure")
       it "Labels subfigures" $
         testAll (
           divWith ("fig:subfigure",[],[]) (
@@ -86,13 +81,13 @@ main = hspec $ do
           )
         (
           divWith ("fig:subfigure",["subfigures"],[]) (
-               para (figure' "fig:" "test1.jpg" [] "a" "figure1")
-            <> para (figure' "fig:" "test2.jpg" [] "b" "figure2")
+               para (figure' "fig:" "test1.jpg" "fig:" "a" [])
+            <> para (figure' "fig:" "test2.jpg" "fig:" "b" [])
             <> para (text "Figure 1: figure caption. a — Test figure 1, b — Test figure 2")
             ) <>
           divWith ("fig:subfigure2",["subfigures"],[]) (
-               para (figure' "fig:" "test21.jpg" [] "a" "figure21")
-            <> para (figure' "fig:" "test22.jpg" [] "b" "figure22")
+               para (figure' "fig:" "test21.jpg" "fig:" "a" [])
+            <> para (figure' "fig:" "test22.jpg" "fig:" "b" [])
             <> para (text "Figure 2: figure caption 2. a — Test figure 21, b — Test figure 22")
             )
         , imgRefs =: M.fromList [("fig:figure1",RefRec {
@@ -121,12 +116,10 @@ main = hspec $ do
                                             refSubfigure = Nothing})
                                    ]
             )
-#else
       it "Labels images" $
         testAll (figure "test.jpg" [] "Test figure" "figure")
         (figure "test.jpg" "fig:" "Figure 1: Test figure" [],
           imgRefs =: M.fromList $ refRec' "fig:figure" 1 "Test figure")
-#endif
       it "Labels equations" $
         testAll (equation "a^2+b^2=c^2" "equation")
         (equation "a^2+b^2=c^2\\qquad(1)" [],
@@ -321,11 +314,7 @@ figure :: String -> String -> String -> String -> Blocks
 figure = (((para .) .) .) . figure' "fig:"
 
 figure' :: String -> String -> String -> String -> String -> Inlines
-#if MIN_VERSION_pandoc(1,16,0)
-figure' p src title alt ref = imageWith ("fig:" ++ ref, [], []) src (p ++ title) (text alt)
-#else
 figure' _ src title alt ref = image src title (text alt) <> ref' "fig" ref
-#endif
 
 section :: String -> Int -> String -> Blocks
 section text' level label = headerWith ("sec:" ++ label,[],[]) level (text text')
